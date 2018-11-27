@@ -84,7 +84,7 @@ CHIP CPU {
     no=instruction[6], out=ALUout, zr=  zrout, ng=ngout);
 
     Or16(a=false, b=ALUout, out=outM);
-    Or16(a=false, b=RegAout, out=addressM);
+    Or16(a=false, b=RegAout, out[0..14]=addressM);
     And(a=Cinstruction, b=instruction[3], out=writeM);
 
     // PC
