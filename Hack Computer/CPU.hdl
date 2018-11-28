@@ -39,41 +39,29 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    // Implement the CPU based on its following functionalities
 
 
     // Instruction decode
-
-
-    // A register and input mux
-
-    
-    // D register
-    
-
-    // ALU and input mux
- 
-
-    // PC with jump test
-
     // identify type of instruction
     Not(in=instruction[15], out=Ainstruction);
     Not(in=Ainstruction, out=Cinstruction);
 
-    // A register
+    // A register and input mux
     // if C instruction and store at register A is true
     And(a=Cinstruction, b=instruction[5], out=ALUtoa); 
     Mux16(a=instruction, b=ALUout, sel=ALUtoa, out=regA);
     // load A if is A instruction or C instruction that destination to register A
     Or(a=Ainstruction, b=ALUtoa, out=loadA);
     ARegister(in=regA, load=loadA, out=RegAout);
-
+    
     // D register
     And(a=Cinstruction, b=instruction[4], out=loadD);
     DRegister(in=ALUout, load=loadD, out=RegDout);
 
-    Mux16(a=RegAout, b=inM, sel=instruction[12], out=AMout);   // select A or M based on a-bit
 
+    // ALU and input mux
+    // select A or M based on a-bit
+    Mux16(a=RegAout, b=inM, sel=instruction[12], out=AMout);   
 
     ALU(x=RegDout, y=AMout,
     zx=instruction[11],
@@ -82,23 +70,35 @@ CHIP CPU {
     ny=instruction[8], 
     f=instruction[7], 
     no=instruction[6], out=ALUout, zr=  zrout, ng=ngout);
-
+    
+    // sets output for memory
     Or16(a=false, b=ALUout, out=outM);
     Or16(a=false, b=RegAout, out[0..14]=addressM);
     And(a=Cinstruction, b=instruction[3], out=writeM);
 
-    // PC
+    // PC with jump test
+    // if instruction is zero and output from ALU is zero then jump
     And(a=zrout, b=instruction[1], out=jeq);
+
+    // if instruction is negative and output from ALU is negative then jump
     And(a=ngout, b=instruction[2], out=jlt);
+
     // check if output is positive
     Or(a=zrout, b=ngout, out=zeroOrneg);
     Not(in=zeroOrneg, out=positive);
+
+    // if instruction is positive and output is positive then jump
     And(a=positive, b=instruction[0], out=jgt);
 
+    // if condition is satisfied then jump
     Or(a=jeq, b=jlt, out=jle);
     Or(a=jle, b=jgt, out=jump);
 
+    // If condition is met, then load PC and jump
+    // If is C instruction then jump
     And(a=Cinstruction, b=jump, out=loadPC);
+
+    // If there is no load, then increment PC
     Not(in=loadPC, out=incPC);
     PC(in=RegAout, load=loadPC, inc=incPC, reset=reset, out[0..14]=pc);
    

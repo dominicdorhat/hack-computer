@@ -27,7 +27,9 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-   //put your codes here
+    // if first 2 bit is 00 or 01 then will load RAM
+    // if first 2 bit is 10 then will load screen
+    // if first 2 bit is 11 then will load keyboard
     DMux4Way(in=load, sel=address[13..14], a=loadram1, b=loadram2, c=loadscreen, d=loadkeyboard);
     Or(a=loadram1, b=loadram2, out=loadram);
     RAM16K(in=in, load=loadram, address=address[0..13], out=ramout);
