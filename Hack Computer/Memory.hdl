@@ -27,9 +27,15 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-    // if first 2 bit is 00 or 01 then will load RAM
-    // if first 2 bit is 10 then will load screen
-    // if first 2 bit is 11 then will load keyboard
+    // 0 as MSB will indicate top half of Memory,
+    //      1 as MSB will indicate the bottom half of Memory
+    // if address is 00 or 01 from the left, then RAM is loaded (0 to 16383)
+    // if address is 10 from the left, then screen is loaded (16384 to 24575)
+    // [keyboard]:
+    //  if address is 110000000000000 or 24576 then keyboard is loaded
+    //      any address above 24576 is ignored
+    // 
+
     DMux4Way(in=load, sel=address[13..14], a=loadram1, b=loadram2, c=loadscreen, d=loadkeyboard);
     Or(a=loadram1, b=loadram2, out=loadram);
     RAM16K(in=in, load=loadram, address=address[0..13], out=ramout);

@@ -30,5 +30,5 @@ CHIP Computer {
     Memory(in=outM, load=writeM, address=addressM, out=memOut);
 
     // ROM
-   ROM32K(address=pc, out=instruction);
+    ROM32K(address=pc, out=instruction);
 }

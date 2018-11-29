@@ -41,28 +41,34 @@ CHIP CPU {
     PARTS:
 
 
-    // Instruction decode
-    // identify type of instruction
+    // Instruction decoding
+    // identify type of instruction, 0 = A, 1 = C instruction
+    // if A-instruction, it is loaded immediately into A Register
     Not(in=instruction[15], out=Ainstruction);
     Not(in=Ainstruction, out=Cinstruction);
 
     // A register and input mux
-    // if C instruction and store at register A is true
+    // AND for condition to allow ALUtoa:
+    //      if C instruction and store at register A is true (5th bit or destination bit)
     And(a=Cinstruction, b=instruction[5], out=ALUtoa); 
     Mux16(a=instruction, b=ALUout, sel=ALUtoa, out=regA);
-    // load A if is A instruction or C instruction that destination to register A
+    // load A if is A instruction or C instruction with destination to register A from ALU
     Or(a=Ainstruction, b=ALUtoa, out=loadA);
     ARegister(in=regA, load=loadA, out=RegAout);
     
-    // D register
+    // D register 
+    // only loaded if MSB is 1 (C-instruction) and d2(destination) or 4th bit is 1
+    // takes the result of computation from ALU when true
     And(a=Cinstruction, b=instruction[4], out=loadD);
     DRegister(in=ALUout, load=loadD, out=RegDout);
 
 
     // ALU and input mux
-    // select A or M based on a-bit
+    // select A register or M(emory) based on a-bit(12th bit from instruction) to be loaded into ALU
+    // inputs are swapped for implementation as a-bit = 1 loads inM and a-bit = 0 loads RegAout
     Mux16(a=RegAout, b=inM, sel=instruction[12], out=AMout);   
 
+    // takes in D as x and A or M(emory) as y
     ALU(x=RegDout, y=AMout,
     zx=instruction[11],
     nx=instruction[10],
@@ -71,26 +77,33 @@ CHIP CPU {
     f=instruction[7], 
     no=instruction[6], out=ALUout, zr=  zrout, ng=ngout);
     
-    // sets output for memory
+    // sets value for output for writing to memory
     Or16(a=false, b=ALUout, out=outM);
+    // addressing memory
     Or16(a=false, b=RegAout, out[0..14]=addressM);
+    // write to memory if destination is M and C-instuction
     And(a=Cinstruction, b=instruction[3], out=writeM);
 
-    // PC with jump test
+    // PC with JMP test
+    // JEQ, zr = 1, j2(bit 1) = 1
     // if instruction is zero and output from ALU is zero then jump
     And(a=zrout, b=instruction[1], out=jeq);
 
+    // JLT, ng = 1, j1(bit 2) = 1
     // if instruction is negative and output from ALU is negative then jump
     And(a=ngout, b=instruction[2], out=jlt);
 
+    // ng = 0, zr = 0
     // check if output is positive
     Or(a=zrout, b=ngout, out=zeroOrneg);
     Not(in=zeroOrneg, out=positive);
 
+    // JGT, j3(bit 0) = 1
     // if instruction is positive and output is positive then jump
     And(a=positive, b=instruction[0], out=jgt);
 
     // if condition is satisfied then jump
+    // JLE, equal + less than
     Or(a=jeq, b=jlt, out=jle);
     Or(a=jle, b=jgt, out=jump);
 
@@ -98,7 +111,7 @@ CHIP CPU {
     // If is C instruction then jump
     And(a=Cinstruction, b=jump, out=loadPC);
 
-    // If there is no load, then increment PC
+    // If there is no load, then increment PC and take in next instruction
     Not(in=loadPC, out=incPC);
     PC(in=RegAout, load=loadPC, inc=incPC, reset=reset, out[0..14]=pc);
    
