@@ -67,16 +67,79 @@ tick, output, tock, output;
 set instruction %B1110000010010000, // D=D+A
 tick, output, tock, output;
 
-set instruction %B0000000000011011, // @27
+set instruction %B0000001111101000, // @1000
 tick, output, tock, output;
 
-set instruction %B1110001100000101, // D;jne
+set instruction %B1110111010010000, // D=-1
 tick, output, tock, output;
 
-set instruction %B0000000000011101, // @29
+set instruction %B1110001100000001, // D;JGT
 tick, output, tock, output;
 
-set instruction %B1110101010000111, // 0;jmp
+set instruction %B1110001100000010, // D;JEQ
+tick, output, tock, output;
+
+set instruction %B1110001100000011, // D;JGE
+tick, output, tock, output;
+
+set instruction %B1110001100000100, // D;JLT
+tick, output, tock, output;
+
+set instruction %B1110001100000101, // D;JNE
+tick, output, tock, output;
+
+set instruction %B1110001100000110, // D;JLE
+tick, output, tock, output;
+
+set instruction %B1110001100000111, // D;JMP
+tick, output, tock, output;
+
+set instruction %B1110101010010000, // D=0
+tick, output, tock, output;
+
+set instruction %B1110001100000001, // D;JGT
+tick, output, tock, output;
+
+set instruction %B1110001100000010, // D;JEQ
+tick, output, tock, output;
+
+set instruction %B1110001100000011, // D;JGE
+tick, output, tock, output;
+
+set instruction %B1110001100000100, // D;JLT
+tick, output, tock, output;
+
+set instruction %B1110001100000101, // D;JNE
+tick, output, tock, output;
+
+set instruction %B1110001100000110, // D;JLE
+tick, output, tock, output;
+
+set instruction %B1110001100000111, // D;JMP
+tick, output, tock, output;
+
+set instruction %B1110111111010000, // D=1
+tick, output, tock, output;
+
+set instruction %B1110001100000001, // D;JGT
+tick, output, tock, output;
+
+set instruction %B1110001100000010, // D;JEQ
+tick, output, tock, output;
+
+set instruction %B1110001100000011, // D;JGE
+tick, output, tock, output;
+
+set instruction %B1110001100000100, // D;JLT
+tick, output, tock, output;
+
+set instruction %B1110001100000101, // D;JNE
+tick, output, tock, output;
+
+set instruction %B1110001100000110, // D;JLE
+tick, output, tock, output;
+
+set instruction %B1110001100000111, // D;JMP
 tick, output, tock, output;
 
 set reset 1;
